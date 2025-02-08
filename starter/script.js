@@ -5,17 +5,18 @@ const countriesContainer = document.querySelector('.countries');
 
 const renderCountry = function (data, className = '') {
   const languages = Object.values(data.languages);
+  console.log('I am renderingCountry');
   console.log(data);
   const currencies = Object.values(data.currencies);
   const html = `        <article class="country ${className}">
           <img class="country__img" src="${data.flags.svg}" />
           <div class="country__data">
-            <h3 class="country__name">${data.name.common}</h3>
+            <h3 class="country__name">${data.name}</h3>
             <h4 class="country__region">${data.region}</h4>
             <p class="country__row"><span>👫</span>${(
               +data.population / 1000000
             ).toFixed(1)}</p>
-            <p class="country__row"><span>🗣️</span>${languages[0]}</p>
+            <p class="country__row"><span>🗣️</span>${languages[0].name}</p>
             <p class="country__row"><span>💰</span>${currencies[0].name}</p>
           </div>
         </article>`;
@@ -349,30 +350,39 @@ const whereAmI = async function (country) {
       `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longtitude=${lng}`
     );
     if (!resGeo.ok) throw new Error('Problem getting location data');
-    const dataGeo = await resGeo.json();
-    console.log(dataGeo);
-    // fetch(`https://restcountries.com/v3.1/name/${country}`).then(res => console.log(res));
 
+    const dataGeo = await resGeo.json();
     const res = await fetch(
-      `https://restcountries.com/v3.1/name/${dataGeo.countryCode}`
+      `https://restcountries.com/v2/name/${dataGeo.countryCode}`
     );
     if (!res.ok) throw new Error('Problem getting country');
     const data = await res.json();
-    console.log(data);
-    renderCountry(data[0]);
+    renderCountry(data[12]);
+
+    return `You are in ${dataGeo.city}, ${dataGeo.name}`;
   } catch (err) {
-    console.log(err.message);
-    renderError(`Something went wrong`);
+    renderError(`SOMETHING WENT WRONG - ${err.message}`);
+
+    // Reject promise returned from async function
+    throw err;
   }
 };
 
-whereAmI();
-console.log('FIRST');
+// const city = whereAmI();
+// console.log(city);
+// whereAmI()
+//   .then(location => console.log(`2: ${location}`))
+//   .catch(err => console.error(` 2: ${err.message}`))
+//   .finally(() => console.log('3: Finished getting location'));
 
-// try {
-//   let y = 1;
-//   const x = 2;
-//   y = 3;
-// } catch (err) {
-//   alert(err.message);
-// }
+(async function () {
+  try {
+    console.log('1: Will get location');
+    const location = await whereAmI();
+    console.log(`2: ${location}`);
+  } catch (error) {
+    console.log(error.message);
+  } finally {
+    console.log('3: Finished getting location');
+  }
+})();
