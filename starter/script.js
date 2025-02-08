@@ -223,7 +223,18 @@ const wait = function (seconds) {
 
 wait(2)
   .then(() => {
-    console.log('I waited for 2 seconds');
+    console.log('1 second passed');
     return wait(1);
   })
-  .then(() => console.log('I waited for 1 second'));
+  .then(() => {
+    console.log('2 second passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('3 second passed');
+    return wait(1);
+  })
+  .then(() => console.log('4 seconds passed'));
+
+Promise.resolve('abc').then(x => console.log(x));
+Promise.reject(new Error('Problem!')).catch(x => console.error(x));
