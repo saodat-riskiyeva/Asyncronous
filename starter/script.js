@@ -254,37 +254,82 @@ const getPosition = function () {
 
 // getPosition().then(pos => console.log(pos));
 
-const whereAmI = function (lat, lng) {
-  getPosition()
-    .then(pos => {
-      const { latitude: lat, longtitude: lng } = pos.coords;
-      return fetch(
-        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longtitude=${lng}&localityLanguage=en`
-      );
-    })
-    .then(res => {
-      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
-      console.log(`This is latitude=${lat} and longtitude=${lng}`);
-      console.log(res);
-      return res.json();
-    })
-    .then(data => {
-      console.log(`You are in ${data.city}, ${data.countryName}`);
+// const whereAmI = function (lat, lng) {
+//   getPosition()
+//     .then(pos => {
+//       const { latitude: lat, longtitude: lng } = pos.coords;
+//       return fetch(
+//         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longtitude=${lng}&localityLanguage=en`
+//       );
+//     })
+//     .then(res => {
+//       if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+//       console.log(`This is latitude=${lat} and longtitude=${lng}`);
+//       console.log(res);
+//       return res.json();
+//     })
+//     .then(data => {
+//       console.log(`You are in ${data.city}, ${data.countryName}`);
 
-      return fetch(`https://restcountries.com/v3.1/alpha/${data.countryCode}`);
-    })
-    .then(res => {
-      if (!res.ok) throw new Error(`Country not found(${res.status})`);
+//       return fetch(`https://restcountries.com/v3.1/alpha/${data.countryCode}`);
+//     })
+//     .then(res => {
+//       if (!res.ok) throw new Error(`Country not found(${res.status})`);
 
-      return res.json();
-    })
-    .then(data => {
-      renderCountry(data[0]);
-    })
-    .catch(err =>
-      console.log(`This is Error Message I am getting - "${err.message}"`)
-    );
+//       return res.json();
+//     })
+//     .then(data => {
+//       renderCountry(data[0]);
+//     })
+//     .catch(err =>
+//       console.log(`This is Error Message I am getting - "${err.message}"`)
+//     );
+// };
+
+// btn.addEventListener('click', whereAmI);
+// // whereAmI(52.508, 13.381);
+
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
 };
 
-btn.addEventListener('click', whereAmI);
-// whereAmI(52.508, 13.381);
+const imageContainer = document.querySelector('.images');
+
+const createImage = function (imgPath) {
+  return new Promise(function (resolve, reject) {
+    const img = document.createElement('img');
+    img.src = imgPath;
+
+    img.addEventListener('load', function () {
+      imageContainer.append(img);
+      resolve(img);
+    });
+
+    img.addEventListener('error', function () {
+      reject(new Error('Image not found'));
+    });
+  });
+};
+let currentImmage;
+
+createImage('img/img-1.jpg')
+  .then(img => {
+    currentImmage = img;
+    console.log('Image 1 loaded');
+    return wait(2);
+  })
+  .then(() => {
+    currentImmage.style.display = 'none';
+    return createImage('img/img-2.jpg');
+  })
+  .then(img => {
+    currentImmage = img;
+    console.log('Image 2 loaded');
+    return wait(2);
+  })
+  .then(() => {
+    currentImmage.style.display = 'none';
+  })
+  .catch(err => console.error(err));
