@@ -341,25 +341,38 @@ const getPosition = function () {
 };
 
 const whereAmI = async function (country) {
-  const pos = await getPosition();
+  try {
+    const pos = await getPosition();
 
-  const { latitude: lat, longtitude: lng } = pos.coords;
-  const resGeo = await fetch(
-    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longtitude=${lng}`
-  );
-  const dataGeo = await resGeo.json();
-  console.log(dataGeo);
-  // fetch(`https://restcountries.com/v3.1/name/${country}`).then(res => console.log(res));
+    const { latitude: lat, longtitude: lng } = pos.coords;
+    const resGeo = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longtitude=${lng}`
+    );
+    if (!resGeo.ok) throw new Error('Problem getting location data');
+    const dataGeo = await resGeo.json();
+    console.log(dataGeo);
+    // fetch(`https://restcountries.com/v3.1/name/${country}`).then(res => console.log(res));
 
-  const res = await fetch(
-    `https://restcountries.com/v3.1/name/${dataGeo.countryCode}`
-  );
-  const data = await res.json();
-  console.log(data);
-  renderCountry(data[0]);
+    const res = await fetch(
+      `https://restcountries.com/v3.1/name/${dataGeo.countryCode}`
+    );
+    if (!res.ok) throw new Error('Problem getting country');
+    const data = await res.json();
+    console.log(data);
+    renderCountry(data[0]);
+  } catch (err) {
+    console.log(err.message);
+    renderError(`Something went wrong`);
+  }
 };
 
-whereAmI('Vatican');
+whereAmI();
 console.log('FIRST');
-console.log('SECOND');
-console.log('THIRD');
+
+// try {
+//   let y = 1;
+//   const x = 2;
+//   y = 3;
+// } catch (err) {
+//   alert(err.message);
+// }
